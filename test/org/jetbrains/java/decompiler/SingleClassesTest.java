@@ -151,6 +151,14 @@ public class SingleClassesTest extends SingleClassesTestBase {
       IFernflowerPreferences.FORCE_JSR_INLINE, "1",
       IFernflowerPreferences.LAMBDA_TO_ANONYMOUS_CLASS, "1"
     );
+    registerSet("No Boolean As Int", this::registerNoBooleanAsInt,
+      IFernflowerPreferences.BYTECODE_SOURCE_MAPPING, "1",
+      IFernflowerPreferences.DUMP_ORIGINAL_LINES, "1",
+      IFernflowerPreferences.DUMP_EXCEPTION_ON_ERROR, "0",
+      IFernflowerPreferences.IGNORE_INVALID_BYTECODE, "1",
+      IFernflowerPreferences.VERIFY_ANONYMOUS_CLASSES, "1",
+      IFernflowerPreferences.BOOLEAN_TRUE_ONE, "0"
+    );
     // TODO: user renamer class test
   }
 
@@ -884,5 +892,9 @@ public class SingleClassesTest extends SingleClassesTestBase {
   private void registerLambdaToAnonymousClass() {
     register(JAVA_8, "TestLambdaToAnonymousClass");
     register(JAVA_8, "TestLambdaToAnonymousClass2");
+  }
+
+  private void registerNoBooleanAsInt() {
+    register(JAVA_8, "TestBooleanAndConstant");
   }
 }

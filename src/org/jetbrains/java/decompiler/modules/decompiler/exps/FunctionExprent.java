@@ -352,6 +352,16 @@ public class FunctionExprent extends Exprent {
     }
   }
 
+  private static boolean isFixedBoolean(Exprent exprent) {
+    if (exprent.getExprType().type != CodeType.BOOLEAN) {
+      return false;
+    }
+    if (exprent instanceof FunctionExprent) {
+      return VarType.VARTYPE_BOOLEAN.equals(((FunctionExprent) exprent).getFuncType().type);
+    }
+    return exprent instanceof InvocationExprent || exprent instanceof FieldExprent || exprent instanceof ArrayExprent;
+  }
+
   @Override
   public CheckTypesResult checkExprTypeBounds() {
     CheckTypesResult result = new CheckTypesResult();
@@ -420,7 +430,9 @@ public class FunctionExprent extends Exprent {
             boolean param1_false_boolean = (param1 instanceof ConstExprent && !((ConstExprent)param1).hasBooleanValue());
             boolean param2_false_boolean = (param2 instanceof ConstExprent && !((ConstExprent)param2).hasBooleanValue());
 
-            if (param1_false_boolean || param2_false_boolean) {
+            // A boolean operand whose type cannot change (a method result, field, array element or boolean
+            // operator) keeps the other one boolean too: with boolean-as-int off, `1 & m()` is not Java
+            if ((param1_false_boolean || param2_false_boolean) && !isFixedBoolean(param1) && !isFixedBoolean(param2)) {
               result.addMinTypeExprent(param1, VarType.VARTYPE_BYTECHAR);
               result.addMinTypeExprent(param2, VarType.VARTYPE_BYTECHAR);
             }
