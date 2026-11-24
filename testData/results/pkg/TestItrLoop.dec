@@ -7,7 +7,7 @@ public class TestItrLoop {
    private List list = new ArrayList();
 
    public void test() {
-      for (String s : this.list) {// 11 12
+      for (String s : (Iterable<String>)this.list) {// 11 12
          System.out.println(s);// 13
       }
    }// 15
@@ -19,13 +19,13 @@ public class TestItrLoop {
    }// 21
 
    public void test2() {
-      for (String var2 : this.list) {// 24
+      for (String var2 : (Iterable<String>)this.list) {// 24
          ;
       }
    }// 27
 
    public void test3() {
-      for (String var2 : this.list) {// 30
+      for (String var2 : (Iterable<String>)this.list) {// 30
          ;
       }
    }// 33

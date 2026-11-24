@@ -739,6 +739,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     register(JAVA_8, "TestPrimitives");
     register(JAVA_8, "TestVarArgCalls");
     register(JAVA_8, "TestUnionType");
+    register(JAVA_8, "TestRawIterableForeach");
     register(JAVA_8, "TestTryWithResources");
     // TODO: continue not explicit
     register(JAVA_8, "TestNestedLoops");
