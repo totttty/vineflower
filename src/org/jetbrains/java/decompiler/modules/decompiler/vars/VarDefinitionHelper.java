@@ -472,7 +472,8 @@ public class VarDefinitionHelper {
                 target = ((FieldExprent)exp).getClassname();
               } else if (exp instanceof ExitExprent) {
                 ExitExprent exit = (ExitExprent)exp;
-                if (exit.getExitType() == ExitExprent.Type.RETURN) {
+                // only an object return type bounds the returned variable's class (a primitive's value is "I" etc.)
+                if (exit.getExitType() == ExitExprent.Type.RETURN && exit.getRetType().type == CodeType.OBJECT) {
                   instance = exit.getValue();
                   target = exit.getRetType().value;
                 }
@@ -563,8 +564,13 @@ public class VarDefinitionHelper {
           Integer index = varproc.getVarOriginalIndex(var.getIndex());
           if (index != null) {
             if (this_vars.containsKey(index)) {
-              stat.getVarDefinitions().remove(x);
-              return new VPPEntry(var, this_vars.get(index));
+              VarVersionPair to = this_vars.get(index);
+              // Keep the definition (a separate variable) when the widening check refuses the merge: remapVar would
+              // not remap anything, and the removed definition would be lost
+              if (!isWideningRefused(new VarVersionPair(var), to)) {
+                stat.getVarDefinitions().remove(x);
+                return new VPPEntry(var, to);
+              }
             }
             this_vars.put(index, new VarVersionPair(var));
             leaked.put(index, new VarVersionPair(var));
@@ -940,6 +946,31 @@ public class VarDefinitionHelper {
     return true;
   }
 
+  // Widening a primitive variable is only valid while every use of both variables still accepts the merged type:
+  // a byte variable whose value is stored into a byte[] (max type byte) cannot become an int
+  private static boolean exceedsMaxType(VarType merged, VarType fromMax, VarType toMax) {
+    return exceedsMaxType(merged, fromMax) || exceedsMaxType(merged, toMax);
+  }
+
+  private static boolean exceedsMaxType(VarType merged, VarType max) {
+    // an object max type says nothing about a primitive variable
+    return max != null && (max.typeFamily != TypeFamily.OBJECT || merged.typeFamily == TypeFamily.OBJECT) &&
+           !max.isSuperset(merged);
+  }
+
+  private boolean isWideningRefused(VarVersionPair from, VarVersionPair to) {
+    Map<VarVersionPair, VarType> minTypes = varproc.getVarVersions().getTypeProcessor().getMapExprentMinTypes();
+    Map<VarVersionPair, VarType> maxTypes = varproc.getVarVersions().getTypeProcessor().getMapExprentMaxTypes();
+    VarType fromMin = minTypes.get(from);
+    VarType toMin = minTypes.get(to);
+    if (fromMin == null || toMin == null || fromMin.equals(toMin) || fromMin.type == CodeType.OBJECT ||
+        toMin.type == CodeType.OBJECT || !fromMin.isStrictSuperset(toMin)) {
+      return false;
+    }
+    VarType type = VarType.getCommonSupertype(fromMin, toMin);
+    return type != null && type.type != CodeType.OBJECT && exceedsMaxType(type, maxTypes.get(from), maxTypes.get(to));
+  }
+
   private VarType getMergedType(VarVersionPair from, VarVersionPair to) {
     Map<VarVersionPair, VarType> minTypes = varproc.getVarVersions().getTypeProcessor().getMapExprentMinTypes();
     Map<VarVersionPair, VarType> maxTypes = varproc.getVarVersions().getTypeProcessor().getMapExprentMaxTypes();
@@ -991,6 +1022,10 @@ public class VarDefinitionHelper {
       // Both nonnull at this point
       if (!fromMin.isStrictSuperset(toMin)) {
         // If type we're merging into the old type isn't a strict superset of the old type, we cannot merge
+        return null;
+      }
+
+      if (exceedsMaxType(type, fromMax, toMax)) {
         return null;
       }
 

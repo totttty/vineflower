@@ -1,0 +1,113 @@
+package pkg;
+
+public class TestNarrowVarSlotReuse {
+   public void test(int var1, byte[] var2) {
+      byte[] var3 = new byte[6];
+      byte var4 = 0;
+
+      while (var4 < var1) {
+         var3[var4] = var4++;
+      }
+
+      var2[0] = var3[1];
+      var3 = var2;
+
+      int var6;
+      for (var6 = 4095; var6 > 0; var6--) {
+         var3[var6] = 1;
+      }
+
+      var2[1] = (byte)var6;
+   }
+
+   public int testMergeable(int var1, int[] var2) {
+      int var3 = (byte)var1;
+      var2[0] = var3;
+      var3 = var1 * 4095;
+      var2[1] = var3;
+      return var2[0];
+   }
+}
+
+class 'pkg/TestNarrowVarSlotReuse' {
+   method 'test (I[B)V' {
+      0      4
+      1      4
+      4      4
+      5      5
+      6      5
+      7      5
+      8      7
+      9      7
+      a      7
+      b      7
+      c      7
+      d      7
+      e      8
+      f      8
+      10      8
+      13      8
+      14      8
+      15      8
+      17      8
+      1e      11
+      1f      11
+      20      11
+      21      11
+      22      11
+      23      11
+      24      12
+      25      12
+      26      15
+      27      15
+      28      15
+      29      15
+      2a      15
+      2b      15
+      2c      15
+      2d      15
+      2e      15
+      2f      15
+      30      16
+      31      16
+      32      16
+      33      16
+      34      16
+      35      15
+      36      15
+      37      15
+      3b      19
+      3c      19
+      3d      19
+      3e      19
+      3f      19
+      40      19
+      41      20
+   }
+
+   method 'testMergeable (I[I)I' {
+      0      23
+      1      23
+      2      23
+      3      24
+      4      24
+      5      24
+      6      24
+      7      25
+      8      25
+      9      25
+      a      25
+      b      25
+      c      25
+      d      26
+      e      26
+      f      26
+      10      26
+      11      27
+      12      27
+      13      27
+      14      27
+   }
+}
+
+Lines mapping:
