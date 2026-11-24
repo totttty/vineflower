@@ -5,8 +5,8 @@ public class TestArrayNull2 {
    }
 
    public void test() {
-      Object var1 = null;
-      new TestArrayNull2((int[])var1);
+      int[] var1 = null;
+      new TestArrayNull2(var1);
    }
 }
 

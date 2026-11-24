@@ -91,7 +91,7 @@ public class TestTryWithResourcesReturnJ16 {
    }
 
    public String testComplex(File f, File f2, File f3) throws FileNotFoundException {
-      Object var16;
+      String var16;
       try (
          Scanner scanner = this.create(f);// 42
          Scanner s2 = this.create(f2);// 43
@@ -112,7 +112,7 @@ public class TestTryWithResourcesReturnJ16 {
          var16 = null;
       }
 
-      return (String)var16;// 47
+      return var16;// 47
    }
 
    public String testComplex1(File f, File f2, File f3) throws FileNotFoundException {

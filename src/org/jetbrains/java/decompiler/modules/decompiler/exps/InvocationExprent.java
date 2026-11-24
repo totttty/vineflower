@@ -653,8 +653,14 @@ public class InvocationExprent extends Exprent {
     CheckTypesResult result = new CheckTypesResult();
 
     if (instance != null) {
-      result.addMinTypeExprent(instance, VarType.getMinTypeInFamily(instance.getExprType().typeFamily));
-      result.addMaxTypeExprent(instance, instance.getExprType());
+      VarType instanceType = instance.getExprType();
+      result.addMinTypeExprent(instance, VarType.getMinTypeInFamily(instanceType.typeFamily));
+      if (instanceType.type == CodeType.NULL && classname != null && !classname.startsWith("[")) {
+        // a variable only ever assigned null: the invoked method's class is the most it can be
+        result.addMaxTypeExprent(instance, new VarType(CodeType.OBJECT, 0, classname));
+      } else {
+        result.addMaxTypeExprent(instance, instanceType);
+      }
     }
 
     for (int i = 0; i < lstParameters.size(); i++) {

@@ -276,6 +276,7 @@ public class SingleClassesTest extends SingleClassesTestBase {
     // TODO: Object should be int[], cast where there shouldn't be
     register(JAVA_8_NODEBUG, "TestArrayNull2");
     register(JAVA_8_NODEBUG, "TestNarrowVarSlotReuse");
+    register(JAVA_8_NODEBUG, "TestNullOnlyVar");
     register(JAVA_8, "TestArrayNullAccess");
     register(JAVA_8, "TestArrayTernary");
     // TODO: Do while loops become standard while loops, and creates incorrect short-circuiting

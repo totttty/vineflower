@@ -157,7 +157,10 @@ public class VarVersionsProcessor {
         //	mapExprentMinTypes.put(paar, VarType.VARTYPE_INT);
       }
       else if (type.type == CodeType.NULL) {
-        mapExprentMinTypes.put(paar, VarType.VARTYPE_OBJECT);
+        // A variable only ever assigned null takes the type its uses require (as a method's instance or argument),
+        // so that it can be used as one; Object otherwise
+        VarType useType = typeProcessor.getObjectUseType(paar);
+        mapExprentMinTypes.put(paar, useType != null ? useType : VarType.VARTYPE_OBJECT);
       }
     }
   }

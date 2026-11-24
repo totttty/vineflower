@@ -1,0 +1,119 @@
+package pkg;
+
+import java.io.File;
+
+public class TestNullOnlyVar {
+   public String testInstance(boolean var1) {
+      File var2 = null;
+      if (var1) {
+         System.out.println(var2 != null ? 1 : 0);
+      }
+
+      return var2 != null ? var2.getPath() : "";
+   }
+
+   public void testArgument() {
+      File var1 = null;
+      take(var1);
+   }
+
+   public void testObjectUse() {
+      String var1 = null;
+      System.out.println(var1);
+   }
+
+   public int testConflict(boolean var1) {
+      CharSequence var2 = null;
+      String var3 = null;
+      return var1 ? var3.length() + var2.length() : 0;
+   }
+
+   private static void take(File var0) {
+   }
+}
+
+class 'pkg/TestNullOnlyVar' {
+   method 'testInstance (Z)Ljava/lang/String;' {
+      0      6
+      1      6
+      2      7
+      3      7
+      4      7
+      5      7
+      6      8
+      7      8
+      8      8
+      9      8
+      a      8
+      b      8
+      c      8
+      d      8
+      11      8
+      12      8
+      13      8
+      14      8
+      15      11
+      16      11
+      17      11
+      18      11
+      19      11
+      1a      11
+      1b      11
+      1c      11
+      20      11
+      21      11
+      22      11
+   }
+
+   method 'testArgument ()V' {
+      0      15
+      1      15
+      2      16
+      3      16
+      4      16
+      5      16
+      6      17
+   }
+
+   method 'testObjectUse ()V' {
+      0      20
+      1      20
+      2      21
+      3      21
+      4      21
+      5      21
+      6      21
+      7      21
+      8      21
+      9      22
+   }
+
+   method 'testConflict (Z)I' {
+      0      25
+      1      25
+      2      26
+      3      26
+      4      27
+      5      27
+      6      27
+      7      27
+      8      27
+      9      27
+      a      27
+      b      27
+      c      27
+      d      27
+      e      27
+      f      27
+      10      27
+      11      27
+      12      27
+      14      27
+   }
+
+   method 'take (Ljava/io/File;)V' {
+      0      31
+   }
+}
+
+Lines mapping:

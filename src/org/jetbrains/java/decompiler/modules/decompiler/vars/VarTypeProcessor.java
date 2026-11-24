@@ -8,6 +8,7 @@ import org.jetbrains.java.decompiler.modules.decompiler.exps.*;
 import org.jetbrains.java.decompiler.modules.decompiler.flow.DirectGraph;
 import org.jetbrains.java.decompiler.modules.decompiler.stats.*;
 import org.jetbrains.java.decompiler.struct.StructClass;
+import org.jetbrains.java.decompiler.struct.StructContext;
 import org.jetbrains.java.decompiler.struct.StructMethod;
 import org.jetbrains.java.decompiler.struct.gen.CodeType;
 import org.jetbrains.java.decompiler.struct.gen.MethodDescriptor;
@@ -29,6 +30,7 @@ public class VarTypeProcessor {
   private final Map<VarVersionPair, VarType> mapExprentMinTypes = new HashMap<>();
   private final Map<VarVersionPair, VarType> mapExprentMaxTypes = new HashMap<>();
   private final Map<VarVersionPair, FinalType> mapFinalVars = new HashMap<>();
+  private final Map<VarVersionPair, VarType> mapObjectUseTypes = new HashMap<>();
 
   public VarTypeProcessor(StructMethod mt, MethodDescriptor md) {
     method = mt;
@@ -144,6 +146,8 @@ public class VarTypeProcessor {
       for (CheckTypesResult.ExprentTypePair entry : result.getLstMaxTypeExprents()) {
         if (entry.type.typeFamily != TypeFamily.OBJECT) {
           changeExprentType(entry.exprent, entry.type, 1);
+        } else if (entry.exprent instanceof VarExprent) {
+          addObjectUseType(new VarVersionPair((VarExprent) entry.exprent), entry.type);
         }
       }
 
@@ -247,6 +251,31 @@ public class VarTypeProcessor {
       }
     }
     return true;
+  }
+
+  // The most specific object type all uses of a variable accept (as a method's instance or argument); only used to
+  // type variables that are only ever assigned null, whose min type says nothing. VARTYPE_UNKNOWN: conflicting uses.
+  private void addObjectUseType(VarVersionPair pair, VarType type) {
+    if (type.type == CodeType.NULL || type.type == CodeType.GENVAR || type.type == CodeType.UNKNOWN || type.value == null) {
+      return;
+    }
+    VarType current = mapObjectUseTypes.get(pair);
+    if (current == null) {
+      mapObjectUseTypes.put(pair, type);
+    } else if (current != VarType.VARTYPE_UNKNOWN && !current.equals(type)) {
+      StructContext ctx = DecompilerContext.getStructContext();
+      boolean classes = current.arrayDim == 0 && type.arrayDim == 0;
+      if (classes && ctx.instanceOf(type.value, current.value)) {
+        mapObjectUseTypes.put(pair, type);
+      } else if (!(classes && ctx.instanceOf(current.value, type.value))) {
+        mapObjectUseTypes.put(pair, VarType.VARTYPE_UNKNOWN);
+      }
+    }
+  }
+
+  public VarType getObjectUseType(VarVersionPair pair) {
+    VarType type = mapObjectUseTypes.get(pair);
+    return type == VarType.VARTYPE_UNKNOWN ? null : type;
   }
 
   public Map<VarVersionPair, VarType> getMapExprentMaxTypes() {
